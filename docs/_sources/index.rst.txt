@@ -1,0 +1,195 @@
+.. model documentation master file, created by
+   sphinx-quickstart on Tue May 29 16:01:42 2018.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive. 
+
+
+**CrossSection**
+******************************
+
+Short description
+==================
+
+As the availability of high-resolution elevation data is increasing, this data can be used to improve hydrologic catchment modelling and specifically the cross-sectional parametrisation in hydrologic models. Such information on cross sections is not only needed for hydrologic modelling. Other applications include pesticide fate modelling where applied substances are related to the surface area and/or volume of streams. For this reason, we present a python-based tool (CrossSection) to create and analyse cross-sections along stream geometries in combination with high-resolution elevation data (e.g. 1 m). The stand-alone tool creates and analyses cross-sections with different rule-based parameter options (height, angle) to derive ready to use cross-section data as modelling inputs for hydrologic and hydraulic models like SWAT, HYPE, CMF or HEC-RAS. Structures like bridges and culverts can be filtered by topographic data (e.g. road and train networks from Open Streetmap data) to reduce errors in cross-section interpretation. The tool is tested on a 150 km stream network with a 1 m resolution digital terrain model. The analysis shows that the analysed cross-section widths and depths are increasing with higher Strahler orders, as expected. 
+
+The CrossSection-tool creates cross sectional profiles of a stream network using the height values of a high resolution digital elevation model (DEM). The Analysis module analysis the created profiles either by identifying the corss-section height limits or by geometric operations to derive representative profile parameters for conventional modelling tools like SWAT or CMF. As new LIDAR technologies like Multi-Photon LiDAR is applied, this offers multiple opportunities to map bathymetry as well as the water surface.
+
+.. figure:: /_static/25_profile.png
+    :align: center
+    :figclass: align-center 
+
+
+
+Input data
+==================
+* Stream Shapefile (requiered)
+* Digital terrain model (requiered)
+* Shapefile structures (optional)
+
+
+As input data a digital elevation model and a stream shapefile is requiered. For the best performance the shapefile is created directly from the DTM by flow direction and accumulation processes. But also topographic stream shapefiles can be used. In this case the accouracy should be within the (defineable) inner boundary of the profile. If additional information on structures exists (mapped bridges or culverts, Open Street map, topographic dataset) this data can be used as addtional information for the cross-section anylsis. 
+
+.. figure:: /_static/input_data.png
+    :align: center
+    :figclass: align-center 
+
+Process data
+==================
+
+1. Cross-section creation along shapfile using the parameters Line distance [m], Cross-section width [m], 
+2. Check for structures. Buffer value [m] is used on intersection points.
+3. Analysis of cross-sections by specific parameter attributes (see Methods).
+
+1. The lowest profile point is identified (optional: within a given point range)
+
+2. The profile is splitted in left and right direction from the lowest point
+
+3. The tool identifies the highest points in left and right direction
+
+4. The tool iterates to the side with the lower highest point first, second to the opposite side and optionally again the first side, if the profile limit is set by the second side by different rules.
+
+
+4. Create result shapefiles.
+ 
+
+.. figure:: /_static/cs_tool_centerline_points.png
+    :align: center
+    :figclass: align-center
+
+Analysis with Python Script 
+Python dependencies:
+numpy, pandas, geopandas, shapely, fiona, gdal, ogr, matplolib, rasterio
+
+
+
+Output data
+==================
+
+Tables with aggregated informations
+
+Parameters & Methods
+==================
+
+The cross-sections can be derived by analysing the profile height points and their neighbors. The Python script uses the csv table to calculate and classify the profile attributes. This is done by a relationship between the points and their angle. More precisely the sinus is calculated in a rectangular triangles between the relevant profile points starting from the lowest profile point.
+
+
+.. figure:: /_static/profile_angle.png
+    :align: center
+    :figclass: align-center 
+
+The tool is configured by a .yaml file (tool_config.yaml). 
+    
+.. code-block:: bash
+  :linenos:
+
+	Project: project name
+
+	Stream_shapefile: \data\Projekt\Stream_sp.shp
+	DTM: data\DTM.tif
+	Structures_shapefile: \data\Projekt\structures.shp
+
+	Buffer_value: 10
+	Aggregation_field: Field_ID
+	strahler_field: strahler
+
+	Line distance: 2
+	Cross-section width: 30
+	Point spacing: 1
+	inner_limit: 
+	outer_limit: 40
+	Angle_sum: 90
+	Angle_max: 50
+	Angle_negative: 
+	Angle bottom limit: 2
+	Negative sum allowed: 1
+	Filter bs max: 10
+	Filter depth min: .5
+	Depth method: lowest
+
+	Create_lwst_pt_shape: True
+	Plotting: True
+
+Project: Name of the project. Used for creation of the result directory
+
+Stream_shapefile: path to Stream shapefile
+
+DTM: path to Digital terrain model
+
+Structures_shapefile: path to shapefile containing structures (e.g. roads, railways, buildings ...)
+
+Buffer_value: optional buffer value for structures. If lines are used as structure inputs the resulting  points from line intersections (stream + structures shapes)  are created, these points are buffered 1 m by default. It is not recommended to use a buffer on polygons (except you know what you are doing!), because e.g. roads can be parallel to  the stream network.
+
+Aggregation_field: Field of stream shapefile to build aggregation statistics on.
+
+strahler_field: Field containing the strahler ID
+
+Line distance: Spacing between cross-sections. E.g. if value is 1, a cross-section is created every 1 meter along the stream geometry.
+
+Cross-section width: Width of cross-section in [m].
+
+Point spacing: spacing of points to be created on the cross-sections to grab the height value of the dtm. E.g if your DTM has a resolution of 1 m, the point spacing would be 1 m, respectively. But the point spacing can also be choosen individually. The tool will also run with lower or higher values.
+
+Inner_limit (optional): Defines a range in [m] from the middle of the profile (Inner_limit / 2 to left and right) to search for the lowest point. This parameter can be low if the stream shapeís accurracy is high. If the Inner_limit is not set, the tool will search for the lowest point within the complete profile.  
+
+Outer_limit (optional): Defines an outer limit [m] of the profile. The outer limit is applied to the lowest point as middle point (Outer_limit / 2 to left and right).   
+
+Angle_sum (optional): If a (accumulated) angle is reached, the tool stops and defines the last position point as profile limit. The tool calculates the difference to the former angle and sums it (except negative angel values which are part of rule c) and d))
+
+Angle_max(optional): If a (single) angle is reached, the tool stops and defines the last position point as profile limit.
+
+Angle_negative(optional): If the defined negative angle value is reached, the tool stops and defines the last position point as profile limit.
+
+Angle bottom limit (required): Defines the value of the maximum angle for the profile bottom. Has a influence on the result bottom width. Coming from the lowest point the tool identifies the bottom of the profile as long as the value is lower than the angle bottom limit value. 
+
+Negative sum allowed (required): The tool checks if the sum of angle is in tendency positive (as expected), which should be the case to get good results. If the sum is negative the profile is sloping in one direction. In mountainous areas the adaptation of this value might be necessary. But under normal condiions a value of 1 should be used. This means that if the a negative sum is reached, the profile is classified as erroneous.
+
+Filter bs max (optional): Plausibility filter on results for bankslope.
+
+Filter depth min (optional): Plausibility filter on results for depth.
+
+Depth method: 
+ëmeaní	highest profile limiting point - mean height of all lower 		profile points. 
+ëlowestí 	heighest profile limiting point ñ lowest profile point.
+
+Create_lwst_pt_shape(optional): Creates a shapefile with the lowest profile points
+
+Plotting(optional): Plots the profiles
+
+
+Quick user guide
+==================
+
+The model can be executed by using the python script bin/crossection_processing .py with the project .yaml file or by calling the script with a executable by dropping the .yaml file on the bat:
+    
+    
+.. code-block:: bash
+  :linenos:
+
+	@echo off
+	set python=C:\Python\Python37\python.exe
+	set script=%cd%/bin/crossection_processing.py
+	call %python% %script% %1
+	pause 
+
+Limitations
+==================
+The tool derives elevation data from a digital elevation model. Dependant on the type of elevation model (e.g. Digital Terrain Model ñ DTM, Digital Surface Model ñ DSM, Digital Elevation Model - DEM) the elevation data holds a specific uncertainty. For best results we recommend using the DTM, as it (at least should) represent the bare surface without vegetation cover. Concerning the water level the DTM also has limitations in accordance to the LIDAR method used for creating the data. E.g. green laser light is is able to pass the water surface and map the profile bathymetry (Mandlburger and Jutzi, 2019). 
+
+
+References
+==================
+
+Mandlburger, G., and Jutzi, B. (2019). On the Feasibility of Water Surface Mapping with Single Photon LiDAR. ISPRS Int. J. Geo-Inf. 8, 188.
+
+
+About
+==================
+
+The tool is a development in a joint-project by knoell Germany GmbH, University of Gieﬂen and Bayer AG.
+
+
+Florian Krebs :sup:`1` :sup:`2` , Philipp Kraft :sup:`2`, Lutz Breuer :sup:`2`, Thorsten Schad :sup:`3` 
+
+:sup:`1` `knoell Germany GmbH <https://www.knoellconsult.com/enf>`_ 
+:sup:`2` `University Giessen ILR <https://www.uni-giessen.de/fbz/fb09/institute/ilr/wasser/enf>`_ 
+:sup:`3` `Bayer AG, Research & Development, Crop Science <https://www.cropscience.bayer.de/>`_ 
