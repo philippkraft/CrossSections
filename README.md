@@ -19,36 +19,36 @@ import crossections as cs
 
 # example yaml file
 
-Project: Example
+Project: Example<br>
 
-Stream_shapefile: C:\Geodata\streams.shp
-DTM: C:\Geodata\dtm.tif
-Structures_shapefile: c:\Geodata\roads_lines.shp
+Stream_shapefile: C:\Geodata\streams.shp<br>
+DTM: C:\Geodata\dtm.tif<br>
+Structures_shapefile: c:\Geodata\roads_lines.shp<br>
 
-Buffer_value: 5
-Aggregation_field: MOD_ID
-strahler_field: strahler
+Buffer_value: 5<br>
+Aggregation_field: MOD_ID<br>
+strahler_field: strahler<br>
 
-Line distance: 20
-Cross-section width: 30
+Line distance: 20<br>
+Cross-section width: 30<br>
 
-Depth extrapolation: True
-strahler_depth: { 1: 0.1, 2: 0.2, 3: 0.3, 4: 0.4, 5: 0.5, 6: 0.6, 7: 0.7, 8: 0.8}
-default_depth: .3
-Point spacing: .5
+Depth extrapolation: True<br>
+strahler_depth: { 1: 0.1, 2: 0.2, 3: 0.3, 4: 0.4, 5: 0.5, 6: 0.6, 7: 0.7, 8: 0.8}<br>
+default_depth: .3<br>
+Point spacing: .5<br>
 
-inner_limit: 15
-outer_limit: 25
-Angle_sum: 90
-Angle_max: 50
-Angle_negative: 
+inner_limit: 15<br>
+outer_limit: 25<br>
+Angle_sum: 90<br>
+Angle_max: 50<br>
+Angle_negative: <br>
 
-Negative sum allowed: 1
-Bottom Angle limit: 
-Bottom height lim: 0.4
-Filter bs max: 10
-Filter depth min: .5
-Depth method: lowest
+Negative sum allowed: 1<br>
+Bottom Angle limit: <br>
+Bottom height lim: 0.4<br>
+Filter bs max: 10<br>
+Filter depth min: .5<br>
+Depth method: lowest<br>
 
-Create_lwst_pt_shape: True
-Plotting: True 
+Create_lwst_pt_shape: True<br>
+Plotting: True <br>
