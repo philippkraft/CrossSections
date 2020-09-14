@@ -5,9 +5,10 @@ Florian Krebs (1,2), Philipp Kraft (1), Martin Bach (1),  Lutz Breuer (2)
 2 knoell Germany GmbH, Konrad-Zuse-Ring 25, 68163 Mannheim, Germany
 Correspondence to: Florian Krebs (florian.krebs@umwelt.uni-giessen.de)
 
+# Website (under construction)
 Webiste: https://flokrebs.github.io/CrossSections/
 
-# install with pio
+# install with PIP
 pip install crossections
 
 # import tool
