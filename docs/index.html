@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>CrossSection &#8212; CrossSection-tool 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="#">CrossSection-tool 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="crosssection">
+<h1><strong>CrossSection</strong><a class="headerlink" href="#crosssection" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="short-description">
+<h2>Short description<a class="headerlink" href="#short-description" title="Permalink to this headline">¶</a></h2>
+<p>As the availability of high-resolution elevation data is increasing, this data can be used to improve hydrologic catchment modelling and specifically the cross-sectional parametrisation in hydrologic models. Such information on cross sections is not only needed for hydrologic modelling. Other applications include pesticide fate modelling where applied substances are related to the surface area and/or volume of streams. For this reason, we present a python-based tool (CrossSection) to create and analyse cross-sections along stream geometries in combination with high-resolution elevation data (e.g. 1 m). The stand-alone tool creates and analyses cross-sections with different rule-based parameter options (height, angle) to derive ready to use cross-section data as modelling inputs for hydrologic and hydraulic models like SWAT, HYPE, CMF or HEC-RAS. Structures like bridges and culverts can be filtered by topographic data (e.g. road and train networks from Open Streetmap data) to reduce errors in cross-section interpretation. The tool is tested on a 150 km stream network with a 1 m resolution digital terrain model. The analysis shows that the analysed cross-section widths and depths are increasing with higher Strahler orders, as expected.</p>
+<p>The CrossSection-tool creates cross sectional profiles of a stream network using the height values of a high resolution digital elevation model (DEM). The Analysis module analysis the created profiles either by identifying the corss-section height limits or by geometric operations to derive representative profile parameters for conventional modelling tools like SWAT or CMF. As new LIDAR technologies like Multi-Photon LiDAR is applied, this offers multiple opportunities to map bathymetry as well as the water surface.</p>
+<div class="align-center figure">
+<img alt="_images/25_profile.png" src="_images/25_profile.png" />
+</div>
+</div>
+<div class="section" id="input-data">
+<h2>Input data<a class="headerlink" href="#input-data" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Stream Shapefile (requiered)</p></li>
+<li><p>Digital terrain model (requiered)</p></li>
+<li><p>Shapefile structures (optional)</p></li>
+</ul>
+<p>As input data a digital elevation model and a stream shapefile is requiered. For the best performance the shapefile is created directly from the DTM by flow direction and accumulation processes. But also topographic stream shapefiles can be used. In this case the accouracy should be within the (defineable) inner boundary of the profile. If additional information on structures exists (mapped bridges or culverts, Open Street map, topographic dataset) this data can be used as addtional information for the cross-section anylsis.</p>
+<div class="align-center figure">
+<img alt="_images/input_data.png" src="_images/input_data.png" />
+</div>
+</div>
+<div class="section" id="process-data">
+<h2>Process data<a class="headerlink" href="#process-data" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Cross-section creation along shapfile using the parameters Line distance [m], Cross-section width [m],</p></li>
+<li><p>Check for structures. Buffer value [m] is used on intersection points.</p></li>
+<li><p>Analysis of cross-sections by specific parameter attributes (see Methods).</p></li>
+</ol>
+<ol class="arabic simple">
+<li><p>The lowest profile point is identified (optional: within a given point range)</p></li>
+<li><p>The profile is splitted in left and right direction from the lowest point</p></li>
+<li><p>The tool identifies the highest points in left and right direction</p></li>
+<li><p>The tool iterates to the side with the lower highest point first, second to the opposite side and optionally again the first side, if the profile limit is set by the second side by different rules.</p></li>
+</ol>
+<ol class="arabic simple" start="4">
+<li><p>Create result shapefiles.</p></li>
+</ol>
+<div class="align-center figure">
+<img alt="_images/cs_tool_centerline_points.png" src="_images/cs_tool_centerline_points.png" />
+</div>
+<p>Analysis with Python Script
+Python dependencies:
+numpy, pandas, geopandas, shapely, fiona, gdal, ogr, matplolib, rasterio</p>
+</div>
+<div class="section" id="output-data">
+<h2>Output data<a class="headerlink" href="#output-data" title="Permalink to this headline">¶</a></h2>
+<p>Tables with aggregated informations</p>
+</div>
+<div class="section" id="parameters-methods">
+<h2>Parameters &amp; Methods<a class="headerlink" href="#parameters-methods" title="Permalink to this headline">¶</a></h2>
+<p>The cross-sections can be derived by analysing the profile height points and their neighbors. The Python script uses the csv table to calculate and classify the profile attributes. This is done by a relationship between the points and their angle. More precisely the sinus is calculated in a rectangular triangles between the relevant profile points starting from the lowest profile point.</p>
+<div class="align-center figure">
+<img alt="_images/profile_angle.png" src="_images/profile_angle.png" />
+</div>
+<p>The tool is configured by a .yaml file (tool_config.yaml).</p>
+<div class="highlight-bash notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26</pre></div></td><td class="code"><div class="highlight"><pre><span></span>      Project: project name
+
+      Stream_shapefile: <span class="se">\d</span>ata<span class="se">\P</span>rojekt<span class="se">\S</span>tream_sp.shp
+      DTM: data<span class="se">\D</span>TM.tif
+      Structures_shapefile: <span class="se">\d</span>ata<span class="se">\P</span>rojekt<span class="se">\s</span>tructures.shp
+
+      Buffer_value: <span class="m">10</span>
+      Aggregation_field: Field_ID
+      strahler_field: strahler
+
+      Line distance: <span class="m">2</span>
+      Cross-section width: <span class="m">30</span>
+      Point spacing: <span class="m">1</span>
+      inner_limit:
+      outer_limit: <span class="m">40</span>
+      Angle_sum: <span class="m">90</span>
+      Angle_max: <span class="m">50</span>
+      Angle_negative:
+      Angle bottom limit: <span class="m">2</span>
+      Negative sum allowed: <span class="m">1</span>
+      Filter bs max: <span class="m">10</span>
+      Filter depth min: .5
+      Depth method: lowest
+
+      Create_lwst_pt_shape: True
+      Plotting: True
+</pre></div>
+</td></tr></table></div>
+<p>Project: Name of the project. Used for creation of the result directory</p>
+<p>Stream_shapefile: path to Stream shapefile</p>
+<p>DTM: path to Digital terrain model</p>
+<p>Structures_shapefile: path to shapefile containing structures (e.g. roads, railways, buildings …)</p>
+<p>Buffer_value: optional buffer value for structures. If lines are used as structure inputs the resulting  points from line intersections (stream + structures shapes)  are created, these points are buffered 1 m by default. It is not recommended to use a buffer on polygons (except you know what you are doing!), because e.g. roads can be parallel to  the stream network.</p>
+<p>Aggregation_field: Field of stream shapefile to build aggregation statistics on.</p>
+<p>strahler_field: Field containing the strahler ID</p>
+<p>Line distance: Spacing between cross-sections. E.g. if value is 1, a cross-section is created every 1 meter along the stream geometry.</p>
+<p>Cross-section width: Width of cross-section in [m].</p>
+<p>Point spacing: spacing of points to be created on the cross-sections to grab the height value of the dtm. E.g if your DTM has a resolution of 1 m, the point spacing would be 1 m, respectively. But the point spacing can also be choosen individually. The tool will also run with lower or higher values.</p>
+<p>Inner_limit (optional): Defines a range in [m] from the middle of the profile (Inner_limit / 2 to left and right) to search for the lowest point. This parameter can be low if the stream shape?s accurracy is high. If the Inner_limit is not set, the tool will search for the lowest point within the complete profile.</p>
+<p>Outer_limit (optional): Defines an outer limit [m] of the profile. The outer limit is applied to the lowest point as middle point (Outer_limit / 2 to left and right).</p>
+<p>Angle_sum (optional): If a (accumulated) angle is reached, the tool stops and defines the last position point as profile limit. The tool calculates the difference to the former angle and sums it (except negative angel values which are part of rule c) and d))</p>
+<p>Angle_max(optional): If a (single) angle is reached, the tool stops and defines the last position point as profile limit.</p>
+<p>Angle_negative(optional): If the defined negative angle value is reached, the tool stops and defines the last position point as profile limit.</p>
+<p>Angle bottom limit (required): Defines the value of the maximum angle for the profile bottom. Has a influence on the result bottom width. Coming from the lowest point the tool identifies the bottom of the profile as long as the value is lower than the angle bottom limit value.</p>
+<p>Negative sum allowed (required): The tool checks if the sum of angle is in tendency positive (as expected), which should be the case to get good results. If the sum is negative the profile is sloping in one direction. In mountainous areas the adaptation of this value might be necessary. But under normal condiions a value of 1 should be used. This means that if the a negative sum is reached, the profile is classified as erroneous.</p>
+<p>Filter bs max (optional): Plausibility filter on results for bankslope.</p>
+<p>Filter depth min (optional): Plausibility filter on results for depth.</p>
+<p>Depth method:
+?mean?  highest profile limiting point - mean height of all lower               profile points.
+?lowest?        heighest profile limiting point ? lowest profile point.</p>
+<p>Create_lwst_pt_shape(optional): Creates a shapefile with the lowest profile points</p>
+<p>Plotting(optional): Plots the profiles</p>
+</div>
+<div class="section" id="quick-user-guide">
+<h2>Quick user guide<a class="headerlink" href="#quick-user-guide" title="Permalink to this headline">¶</a></h2>
+<p>The model can be executed by using the python script bin/crossection_processing .py with the project .yaml file or by calling the script with a executable by dropping the .yaml file on the bat:</p>
+<div class="highlight-bash notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5</pre></div></td><td class="code"><div class="highlight"><pre><span></span>      @echo off
+      <span class="nb">set</span> <span class="nv">python</span><span class="o">=</span>C:<span class="se">\P</span>ython<span class="se">\P</span>ython37<span class="se">\p</span>ython.exe
+      <span class="nb">set</span> <span class="nv">script</span><span class="o">=</span>%cd%/bin/crossection_processing.py
+      call %python% %script% %1
+      pause
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h2>
+<p>The tool derives elevation data from a digital elevation model. Dependant on the type of elevation model (e.g. Digital Terrain Model ? DTM, Digital Surface Model ? DSM, Digital Elevation Model - DEM) the elevation data holds a specific uncertainty. For best results we recommend using the DTM, as it (at least should) represent the bare surface without vegetation cover. Concerning the water level the DTM also has limitations in accordance to the LIDAR method used for creating the data. E.g. green laser light is is able to pass the water surface and map the profile bathymetry (Mandlburger and Jutzi, 2019).</p>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<p>Mandlburger, G., and Jutzi, B. (2019). On the Feasibility of Water Surface Mapping with Single Photon LiDAR. ISPRS Int. J. Geo-Inf. 8, 188.</p>
+</div>
+<div class="section" id="about">
+<h2>About<a class="headerlink" href="#about" title="Permalink to this headline">¶</a></h2>
+<p>The tool is a development in a joint-project by knoell Germany GmbH, University of Gie?en and Bayer AG.</p>
+<p>Florian Krebs <sup>1</sup> <sup>2</sup> , Philipp Kraft <sup>2</sup>, Lutz Breuer <sup>2</sup>, Thorsten Schad <sup>3</sup></p>
+<p><sup>1</sup> <a class="reference external" href="https://www.knoellconsult.com/enf">knoell Germany GmbH</a>
+<sup>2</sup> <a class="reference external" href="https://www.uni-giessen.de/fbz/fb09/institute/ilr/wasser/enf">University Giessen ILR</a>
+<sup>3</sup> <a class="reference external" href="https://www.cropscience.bayer.de/">Bayer AG, Research &amp; Development, Crop Science</a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><strong>CrossSection</strong></a><ul>
+<li><a class="reference internal" href="#short-description">Short description</a></li>
+<li><a class="reference internal" href="#input-data">Input data</a></li>
+<li><a class="reference internal" href="#process-data">Process data</a></li>
+<li><a class="reference internal" href="#output-data">Output data</a></li>
+<li><a class="reference internal" href="#parameters-methods">Parameters &amp; Methods</a></li>
+<li><a class="reference internal" href="#quick-user-guide">Quick user guide</a></li>
+<li><a class="reference internal" href="#limitations">Limitations</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
+<li><a class="reference internal" href="#about">About</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="#">CrossSection-tool 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, knoell Germany GmbH.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>
